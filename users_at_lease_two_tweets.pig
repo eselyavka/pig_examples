@@ -1,5 +1,5 @@
 /*https://www.vistrails.org/index.php/Assignment_4_-_Querying_with_Pig_and_Mapreduce*/
-/*3a*/
+/*4a*/
 tweets = LOAD 'pig_examples/tweets.csv' USING PigStorage(',') AS (id:long, payload:chararray, login:chararray);
 users = LOAD 'pig_examples/users.csv' USING PigStorage(',') AS (ulogin:chararray, full_name:chararray, state:chararray);
 joined = FOREACH (JOIN tweets BY login, users BY ulogin) GENERATE id,login,full_name;
@@ -9,10 +9,5 @@ number_of_tweets_per_user = FOREACH (GROUP joined BY login) {
         FLATTEN(unique_full_name) AS ufn,
         COUNT(joined.full_name) AS cnt;
 };
-DUMP number_of_tweets_per_user;
-
-/*https://www.vistrails.org/index.php/Assignment_4_-_Querying_with_Pig_and_Mapreduce*/
-/*3b*/
-number_of_tweets_per_user_ordered = ORDER number_of_tweets_per_user BY cnt DESC;
-
-DUMP number_of_tweets_per_user_ordered;
+user_with_at_least_two_tweets = FOREACH (FILTER number_of_tweets_per_user BY cnt >= 2) GENERATE ufn;
+DUMP user_with_at_least_two_tweets;
